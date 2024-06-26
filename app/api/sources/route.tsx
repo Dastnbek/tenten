@@ -18,6 +18,7 @@ export async function POST(request: NextRequest) {
   const sourceCount = 5;
   try {
     const sourceQuery = `https://www.google.com/search?q=${query}`;
+    console.log("sourceQuery", sourceQuery);
     const responseFromSources = await fetch(sourceQuery);
     const html = await responseFromSources.text();
 
