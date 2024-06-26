@@ -101,7 +101,7 @@ const MainContainer = () => {
           <h3>Searched for: {<Code>{aiResponse.title}</Code>}</h3>
           <Flex direction="column" gap="3" justify="start">
             {aiResponse.list.map((item, idx) => (
-              <Flex direction="column" gap="1">
+              <Flex key={idx} direction="column" gap="1">
                 <Text weight="bold" size="5" mb="1" key={idx}>
                   {idx + 1}. {item.name || item.title}
                 </Text>
