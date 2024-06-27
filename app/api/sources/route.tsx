@@ -47,7 +47,7 @@ const getSourceLinks = (sources: Source[], limit: number) => {
 
 export async function POST(request: NextRequest) {
   const { query } = await request.json();
-  const sourceCount = 7;
+  const sourceCount = 5;
   try {
     const serperResponse = await useSerperAPI(query);
     const links = getSourceLinks(serperResponse.data.organic, sourceCount);
@@ -57,7 +57,12 @@ export async function POST(request: NextRequest) {
         const response = await fetch(link);
         const html = await response.text();
 
-        const dom = new JSDOM(html);
+        // const dom = new JSDOM(html);
+        const virtualConsole = new JSDOM.VirtualConsole();
+        virtualConsole.on("error", () => {
+          // No-op to skip console errors.
+        });
+        const dom = new JSDOM(html, { virtualConsole });
         const doc = dom.window.document;
         const parsed = new Readability(doc).parse();
 
