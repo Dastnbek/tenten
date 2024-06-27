@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as cheerio from "cheerio";
-import { JSDOM } from "jsdom";
+import jsdom from "jsdom";
 import { Readability } from "@mozilla/readability";
 import axios from "axios";
 
@@ -58,7 +58,8 @@ export async function POST(request: NextRequest) {
         const html = await response.text();
 
         // const dom = new JSDOM(html);
-        const virtualConsole = new JSDOM.VirtualConsole();
+        const { JSDOM } = jsdom;
+        const virtualConsole = new jsdom.VirtualConsole();
         virtualConsole.on("error", () => {
           // No-op to skip console errors.
         });
