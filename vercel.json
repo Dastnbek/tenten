@@ -1,7 +1,7 @@
 {
     "functions": {
         "pages/api/sources/route.tsx": {
-            "maxDuration": 30
+            "maxDuration": 60
         },
         "pages/api/ai-response/route.tsx": {
             "maxDuration": 30
