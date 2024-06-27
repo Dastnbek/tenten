@@ -6,9 +6,15 @@ import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 
 interface SearchFieldProps {
   setSearchValue: (value: string) => void;
+  placeholder?: string;
+  className?: string;
 }
 
-const SearchField = ({ setSearchValue }: SearchFieldProps) => {
+const SearchField = ({
+  className,
+  setSearchValue,
+  placeholder,
+}: SearchFieldProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleSearch = (e) => {
@@ -20,13 +26,13 @@ const SearchField = ({ setSearchValue }: SearchFieldProps) => {
   };
 
   return (
-    <Flex width="80%" direction="column" gap="2">
+    <Flex className={className} width="80%" direction="column" gap="2">
       <TextField.Root
         size="3"
         radius="full"
         ref={inputRef}
         style={{ height: "60px" }}
-        placeholder="Search for best..."
+        placeholder={placeholder}
         onKeyDown={handleSearch}
       >
         <TextField.Slot>

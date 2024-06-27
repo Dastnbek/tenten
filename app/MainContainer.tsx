@@ -16,6 +16,7 @@ import Link from "next/link";
 
 const MainContainer = () => {
   const [searchValue, setSearchValue] = useState<string>("");
+  const [searchPrompt, setSearchPrompt] = useState<string>("");
   const [aiResponse, setAiResponse] = useState<string>("");
   const [dataSources, setDataSources] = useState([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -28,12 +29,25 @@ const MainContainer = () => {
         setLoading(true);
         const dataSources = await fetchData();
         console.log("mine", dataSources);
-        await fetchAIResponse(dataSources);
+        setDataSources(dataSources);
+        setLoading(false);
       };
 
       fetchedDataSourse();
     }
   }, [searchValue]);
+
+  useEffect(() => {
+    if (searchPrompt.length > 3 && dataSources.length > 0) {
+      const getAIResponse = async () => {
+        setLoading(true);
+        await fetchAIResponse(dataSources, searchPrompt);
+        setLoading(false);
+      };
+
+      getAIResponse();
+    }
+  }, [searchPrompt, dataSources]);
 
   const fetchData = async () => {
     const response = await fetch("/api/sources", {
@@ -49,8 +63,8 @@ const MainContainer = () => {
     return dataSources;
   };
 
-  const fetchAIResponse = async (dataSources) => {
-    const prompt = endent`Compare given resourses and provide a top 10 list of items and info like years, creators, location and more at least 500 characters about each item in one simple object in json format based on category which is specified in sources. Be original, concise, accurate, and helpful.
+  const fetchAIResponse = async (dataSources, searchPrompt) => {
+    const prompt = endent`Analyze data Sources based on given prompt ${searchPrompt} and return result in one simple object in json forma. Be helpful.
         ${dataSources
           .map((source, idx) => `Source [${idx + 1}]:\n${source.text}`)
           .join("\n\n")}
@@ -76,7 +90,14 @@ const MainContainer = () => {
           <Code>10x10</Code>
         </Heading>
       </Flex>
-      <SearchField setSearchValue={setSearchValue} />
+      <SearchField setSearchValue={setSearchValue} placeholder="Search" />
+      <span className="w-full my-4" style={{ height: 50 + "px" }}>
+        {" "}
+      </span>
+
+      {dataSources.length > 0 && (
+        <SearchField setSearchValue={setSearchPrompt} placeholder="Prompt" />
+      )}
       {loading && <Spinner mt="9" size="3" />}
       <Flex mt="3" direction="row" gap="2">
         {dataSources.length > 0 &&

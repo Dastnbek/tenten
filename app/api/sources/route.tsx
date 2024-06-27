@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import * as cheerio from "cheerio";
 import { JSDOM } from "jsdom";
 import { Readability } from "@mozilla/readability";
+import axios from "axios";
 
 const cleanSourceText = (text: string) => {
   return text
@@ -13,19 +14,43 @@ const cleanSourceText = (text: string) => {
     .replace(/\n+(\s*\n)*/g, "\n");
 };
 
+const useSerperAPI = async (query: string) => {
+  const searchQuery = JSON.stringify({
+    q: query,
+  });
+
+  let config = {
+    method: "post",
+    url: "https://google.serper.dev/search",
+    headers: {
+      "X-API-KEY": "c5baf5a97cf5bf101ad423922ec92ef82e40d35d",
+      "Content-Type": "application/json",
+    },
+    data: searchQuery,
+  };
+
+  axios(config)
+    .then((response) => {
+      console.log("Serper", JSON.stringify(response.data));
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+};
+
 export async function POST(request: NextRequest) {
   const { query } = await request.json();
   const sourceCount = 5;
   try {
     const sourceQuery = `https://www.google.com/search?q=${query}`;
-    console.log("sourceQuery", sourceQuery);
+    await useSerperAPI(query);
     const responseFromSources = await fetch(sourceQuery);
     const html = await responseFromSources.text();
+    console.log("resposne", responseFromSources);
 
     const $ = cheerio.load(html);
     const linkTags = $("a");
     let links: string[] = [];
-    console.log("link tags", linkTags);
 
     linkTags.each((i, link) => {
       const href = $(link).attr("href");
