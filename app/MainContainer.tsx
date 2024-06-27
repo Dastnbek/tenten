@@ -32,6 +32,8 @@ const MainContainer = () => {
 
           const { sources } = await fetchData();
 
+          console.log("sources", sources);
+
           setDataSources(sources);
           setLoading(false);
         } catch (error) {

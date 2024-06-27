@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import * as cheerio from "cheerio";
 import jsdom from "jsdom";
 import { Readability } from "@mozilla/readability";
 import axios from "axios";
@@ -17,6 +16,7 @@ const cleanSourceText = (text: string) => {
 const useSerperAPI = async (query: string) => {
   const searchQuery = JSON.stringify({
     q: query,
+    num: 30,
   });
 
   let config = {
@@ -39,26 +39,49 @@ interface Source {
   position: number;
 }
 
-const getSourceLinks = (sources: Source[], limit: number) => {
+const getSourceLinks = (sources: Source[]) => {
   const links = sources.map((source) => source.link);
 
-  return links.slice(0, limit);
+  return links;
+};
+
+const getFilteredLinks = (links: string[]) => {
+  const filteredLinks = links.filter((link, idx) => {
+    const domain = new URL(link).hostname;
+
+    const excludeList = [
+      "google",
+      "facebook",
+      "twitter",
+      "instagram",
+      "youtube",
+      "tiktok",
+      "pinterest",
+      "linkedin",
+      "reddit",
+    ];
+    if (excludeList.some((site) => domain.includes(site))) return false;
+
+    return links.findIndex((link) => new URL(link).hostname === domain) === idx;
+  });
+
+  return filteredLinks;
 };
 
 export async function POST(request: NextRequest) {
+  const { JSDOM } = jsdom;
   const { query } = await request.json();
   const sourceCount = 5;
   try {
     const serperResponse = await useSerperAPI(query);
-    const links = getSourceLinks(serperResponse.data.organic, sourceCount);
-    const { JSDOM } = jsdom;
+    const links = getSourceLinks(serperResponse.data.organic);
+    const filteredLinks = getFilteredLinks(links);
+    const finalLinks = filteredLinks.slice(0, sourceCount);
 
     const sources = (await Promise.all(
-      links.map(async (link) => {
+      finalLinks.map(async (link) => {
         const response = await fetch(link);
         const html = await response.text();
-
-        // const dom = new JSDOM(html);
         const virtualConsole = new jsdom.VirtualConsole();
         virtualConsole.on("error", () => {
           // No-op to skip console errors.
