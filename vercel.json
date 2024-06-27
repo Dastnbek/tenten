@@ -1,8 +1,10 @@
 {
     "functions": {
-      "api/**/*.tsx": {
-        "memory": 3009,
-        "maxDuration": 30
-      }
+        "pages/api/sources/route.tsx": {
+            "maxDuration": 30
+        },
+        "pages/api/ai-response/route.tsx": {
+            "maxDuration": 30
+        }
     }
-  }
+}
