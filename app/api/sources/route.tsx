@@ -82,9 +82,7 @@ export async function POST(request: NextRequest) {
       source.text = source.text.slice(0, 1500);
     }
 
-    console.log("filtered sources", filteredSources);
-
-    return NextResponse.json({ filteredSources }, { status: 201 });
+    return NextResponse.json({ sources: filteredSources }, { status: 201 });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error }, { status: 500 });

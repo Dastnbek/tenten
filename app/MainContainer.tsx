@@ -26,10 +26,13 @@ const MainContainer = () => {
       const fetchedDataSourse = async () => {
         setDataSources([]);
         setAiResponse("");
+
         setLoading(true);
-        const dataSources = await fetchData();
+
+        const { sources } = await fetchData();
         console.log("mine", dataSources);
-        setDataSources(dataSources);
+
+        setDataSources(sources);
         setLoading(false);
       };
 
@@ -59,7 +62,7 @@ const MainContainer = () => {
     });
 
     const dataSources = await response.json();
-    setDataSources(dataSources);
+
     return dataSources;
   };
 
@@ -91,13 +94,13 @@ const MainContainer = () => {
         </Heading>
       </Flex>
       <SearchField setSearchValue={setSearchValue} placeholder="Search" />
-      <span className="w-full my-4" style={{ height: 50 + "px" }}>
-        {" "}
-      </span>
+      <span className="w-full my-4" style={{ height: 50 + "px" }}></span>
 
       {dataSources.length > 0 && (
         <SearchField setSearchValue={setSearchPrompt} placeholder="Prompt" />
       )}
+
+      <span className="w-full my-4" style={{ height: 50 + "px" }}></span>
       {loading && <Spinner mt="9" size="3" />}
       <Flex mt="3" direction="row" gap="2">
         {dataSources.length > 0 &&
