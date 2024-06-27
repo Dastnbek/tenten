@@ -51,6 +51,7 @@ export async function POST(request: NextRequest) {
   try {
     const serperResponse = await useSerperAPI(query);
     const links = getSourceLinks(serperResponse.data.organic, sourceCount);
+    const { JSDOM } = jsdom;
 
     const sources = (await Promise.all(
       links.map(async (link) => {
@@ -58,7 +59,6 @@ export async function POST(request: NextRequest) {
         const html = await response.text();
 
         // const dom = new JSDOM(html);
-        const { JSDOM } = jsdom;
         const virtualConsole = new jsdom.VirtualConsole();
         virtualConsole.on("error", () => {
           // No-op to skip console errors.
