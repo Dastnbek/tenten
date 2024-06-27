@@ -1,6 +1,6 @@
 {
     "functions": {
-      "api/*.js": {
+      "api/**/*.tsx": {
         "memory": 3009,
         "maxDuration": 30
       }
