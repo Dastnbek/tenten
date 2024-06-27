@@ -24,16 +24,20 @@ const MainContainer = () => {
   useEffect(() => {
     if (searchValue.length > 3) {
       const fetchedDataSourse = async () => {
-        setDataSources([]);
-        setAiResponse("");
+        try {
+          setDataSources([]);
+          setAiResponse("");
 
-        setLoading(true);
+          setLoading(true);
 
-        const { sources } = await fetchData();
-        console.log("mine", dataSources);
+          const { sources } = await fetchData();
 
-        setDataSources(sources);
-        setLoading(false);
+          setDataSources(sources);
+          setLoading(false);
+        } catch (error) {
+          console.log(error);
+          setLoading(false);
+        }
       };
 
       fetchedDataSourse();
