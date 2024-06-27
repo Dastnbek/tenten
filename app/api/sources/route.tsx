@@ -23,7 +23,7 @@ const useSerperAPI = async (query: string) => {
     method: "post",
     url: "https://google.serper.dev/search",
     headers: {
-      "X-API-KEY": "c5baf5a97cf5bf101ad423922ec92ef82e40d35d",
+      "X-API-KEY": process.env.SERPER_API_KEY,
       "Content-Type": "application/json",
     },
     data: searchQuery,
