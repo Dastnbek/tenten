@@ -16,7 +16,7 @@ const cleanSourceText = (text: string) => {
 const useSerperAPI = async (query: string) => {
   const searchQuery = JSON.stringify({
     q: query,
-    num: 30,
+    num: 20,
   });
 
   let config = {
@@ -71,9 +71,10 @@ const getFilteredLinks = (links: string[]) => {
 export async function POST(request: NextRequest) {
   const { JSDOM } = jsdom;
   const { query } = await request.json();
-  const sourceCount = 5;
+  const sourceCount = 3;
   try {
     const serperResponse = await useSerperAPI(query);
+    console.log("search response", serperResponse.data.organic);
     const links = getSourceLinks(serperResponse.data.organic);
     const filteredLinks = getFilteredLinks(links);
     const finalLinks = filteredLinks.slice(0, sourceCount);
@@ -98,6 +99,8 @@ export async function POST(request: NextRequest) {
         }
       })
     )) as { url: string; text: string }[];
+
+    console.log("my sources", sources);
 
     const filteredSources = sources.filter((source) => source !== undefined);
 
