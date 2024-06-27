@@ -68,6 +68,8 @@ const getFilteredLinks = (links: string[]) => {
   return filteredLinks;
 };
 
+export const maxDuration = 300;
+
 export async function POST(request: NextRequest) {
   const { JSDOM } = jsdom;
   const { query } = await request.json();
