@@ -1,10 +1,11 @@
 {
     "functions": {
         "pages/api/sources/route.tsx": {
-            "maxDuration": 60
+            "memory": 3009,
+            "maxDuration": 100
         },
         "pages/api/ai-response/route.tsx": {
-            "maxDuration": 30
+            "maxDuration": 60
         }
     }
 }
