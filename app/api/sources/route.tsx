@@ -79,12 +79,12 @@ export async function POST(request: NextRequest) {
     const filteredSources = sources.filter((source) => source !== undefined);
 
     for (const source of filteredSources) {
-      source.text = source.text.slice(0, 2000);
+      source.text = source.text.slice(0, 1500);
     }
 
     console.log("filtered sources", filteredSources);
 
-    return NextResponse.json([], { status: 201 });
+    return NextResponse.json({ filteredSources }, { status: 201 });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error }, { status: 500 });
