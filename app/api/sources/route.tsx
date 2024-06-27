@@ -29,84 +29,54 @@ const useSerperAPI = async (query: string) => {
     data: searchQuery,
   };
 
-  axios(config)
-    .then((response) => {
-      console.log("Serper", JSON.stringify(response.data));
-    })
-    .catch((error) => {
-      console.log(error);
-    });
+  return axios(config);
+};
+
+interface Source {
+  title: string;
+  link: string;
+  snippet: string;
+  position: number;
+}
+
+const getSourceLinks = (sources: Source[], limit: number) => {
+  const links = sources.map((source) => source.link);
+
+  return links.slice(0, limit);
 };
 
 export async function POST(request: NextRequest) {
   const { query } = await request.json();
-  // const sourceCount = 5;
+  const sourceCount = 7;
   try {
-    await useSerperAPI(query);
-    // const sourceQuery = `https://www.google.com/search?q=${query}`;
-    // const responseFromSources = await fetch(sourceQuery);
-    // const html = await responseFromSources.text();
-    // console.log("resposne", responseFromSources);
+    const serperResponse = await useSerperAPI(query);
+    const links = getSourceLinks(serperResponse.data.organic, sourceCount);
 
-    // const $ = cheerio.load(html);
-    // const linkTags = $("a");
-    // let links: string[] = [];
+    const sources = (await Promise.all(
+      links.map(async (link) => {
+        const response = await fetch(link);
+        const html = await response.text();
 
-    // linkTags.each((i, link) => {
-    //   const href = $(link).attr("href");
+        const dom = new JSDOM(html);
+        const doc = dom.window.document;
+        const parsed = new Readability(doc).parse();
 
-    //   if (href && href.startsWith("/url?q=")) {
-    //     const cleanedHref = href.replace("/url?q=", "").split("&")[0];
+        if (parsed) {
+          let sourceText = cleanSourceText(parsed.textContent);
+          let title = parsed.title;
 
-    //     if (!links.includes(cleanedHref)) {
-    //       links.push(cleanedHref);
-    //     }
-    //   }
-    // });
+          return { url: link, text: sourceText, title };
+        }
+      })
+    )) as { url: string; text: string }[];
 
-    // const filteredLinks = links.filter((link, idx) => {
-    //   const domain = new URL(link).hostname;
+    const filteredSources = sources.filter((source) => source !== undefined);
 
-    //   const excludeList = [
-    //     "google",
-    //     "facebook",
-    //     "twitter",
-    //     "instagram",
-    //     "youtube",
-    //     "tiktok",
-    //   ];
-    //   if (excludeList.some((site) => domain.includes(site))) return false;
+    for (const source of filteredSources) {
+      source.text = source.text.slice(0, 2000);
+    }
 
-    //   return (
-    //     links.findIndex((link) => new URL(link).hostname === domain) === idx
-    //   );
-    // });
-
-    // const finalLinks = filteredLinks.slice(0, sourceCount);
-    // console.log("finalLinks", finalLinks);
-    // const sources = (await Promise.all(
-    //   finalLinks.map(async (link) => {
-    //     const response = await fetch(link);
-    //     const html = await response.text();
-
-    //     const dom = new JSDOM(html);
-    //     const doc = dom.window.document;
-    //     const parsed = new Readability(doc).parse();
-
-    //     if (parsed) {
-    //       let sourceText = cleanSourceText(parsed.textContent);
-    //       let title = parsed.title;
-
-    //       return { url: link, text: sourceText, title };
-    //     }
-    //   })
-    // )) as { url: string; text: string }[];
-
-    // const filteredSources = sources.filter((source) => source !== undefined);
-
-    // for (const source of filteredSources) {
-    //   source.text = source.text.slice(0, 1500);
-    // }
+    console.log("filtered sources", filteredSources);
 
     return NextResponse.json([], { status: 201 });
   } catch (error) {
