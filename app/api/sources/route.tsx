@@ -40,7 +40,7 @@ const useSerperAPI = async (query: string) => {
 
 export async function POST(request: NextRequest) {
   const { query } = await request.json();
-  const sourceCount = 5;
+  // const sourceCount = 5;
   try {
     await useSerperAPI(query);
     // const sourceQuery = `https://www.google.com/search?q=${query}`;
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
     //   source.text = source.text.slice(0, 1500);
     // }
 
-    return NextResponse.json({'Hello world'}, { status: 201 });
+    return NextResponse.json([], { status: 201 });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error }, { status: 500 });
