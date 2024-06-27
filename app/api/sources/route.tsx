@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
     });
 
     const finalLinks = filteredLinks.slice(0, sourceCount);
-
+    console.log("finalLinks", finalLinks);
     const sources = (await Promise.all(
       finalLinks.map(async (link) => {
         const response = await fetch(link);
