@@ -32,7 +32,7 @@ const MainContainer = () => {
 
           const { sources } = await fetchData();
 
-          console.log("sources", sources);
+          console.log("my sources", sources);
 
           setDataSources(sources);
           setLoading(false);
