@@ -70,8 +70,37 @@ const getFilteredLinks = (links: string[]) => {
 
 export const maxDuration = 300;
 
-export async function POST(request: NextRequest) {
+const fetchUrls = async (urls: string[]) => {
   const { JSDOM } = jsdom;
+  const contents: { url: string; text: string }[] = [];
+
+  for (const url of urls) {
+    try {
+      const response = await fetch(url);
+      const html = await response.text();
+      const virtualConsole = new jsdom.VirtualConsole();
+      virtualConsole.on("error", () => {
+        // No-op to skip console errors.
+      });
+      const dom = new JSDOM(html, { virtualConsole });
+      const doc = dom.window.document;
+      const parsed = new Readability(doc).parse();
+
+      if (parsed) {
+        let sourceText = cleanSourceText(parsed.textContent);
+        let title = parsed.title;
+
+        contents.push({ url: url, text: sourceText, title });
+      }
+    } catch (error) {
+      console.error(error);
+      // throw new Error("Failed to fetch one or more URLs");
+    }
+  }
+  return contents;
+};
+
+export async function POST(request: NextRequest) {
   const { query } = await request.json();
   const sourceCount = 3;
   try {
@@ -81,26 +110,7 @@ export async function POST(request: NextRequest) {
     const filteredLinks = getFilteredLinks(links);
     const finalLinks = filteredLinks.slice(0, sourceCount);
 
-    const sources = (await Promise.all(
-      finalLinks.map(async (link) => {
-        const response = await fetch(link);
-        const html = await response.text();
-        const virtualConsole = new jsdom.VirtualConsole();
-        virtualConsole.on("error", () => {
-          // No-op to skip console errors.
-        });
-        const dom = new JSDOM(html, { virtualConsole });
-        const doc = dom.window.document;
-        const parsed = new Readability(doc).parse();
-
-        if (parsed) {
-          let sourceText = cleanSourceText(parsed.textContent);
-          let title = parsed.title;
-
-          return { url: link, text: sourceText, title };
-        }
-      })
-    )) as { url: string; text: string }[];
+    const sources = await fetchUrls(finalLinks);
 
     console.log("my sources", sources);
 

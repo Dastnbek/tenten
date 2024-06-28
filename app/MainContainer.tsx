@@ -43,6 +43,8 @@ const MainContainer = () => {
       };
 
       fetchedDataSourse();
+    } else {
+      setDataSources([]);
     }
   }, [searchValue]);
 
@@ -99,17 +101,27 @@ const MainContainer = () => {
           <Code>10x10</Code>
         </Heading>
       </Flex>
-      <SearchField setSearchValue={setSearchValue} placeholder="Search" />
+
+      <SearchField
+        value={searchValue}
+        setSearchValue={setSearchValue}
+        placeholder="Search"
+      />
       <span className="w-full my-4" style={{ height: 50 + "px" }}></span>
 
       {dataSources.length > 0 && (
-        <SearchField setSearchValue={setSearchPrompt} placeholder="Prompt" />
+        <SearchField
+          value={searchPrompt}
+          setSearchValue={setSearchPrompt}
+          placeholder="Prompt"
+        />
       )}
 
       <span className="w-full my-4" style={{ height: 50 + "px" }}></span>
       {loading && <Spinner mt="9" size="3" />}
       <Flex mt="3" direction="row" gap="2">
         {dataSources.length > 0 &&
+          searchValue.length > 3 &&
           dataSources.map((source, idx) => (
             <Card key={idx} size="2">
               <Box>
@@ -126,7 +138,7 @@ const MainContainer = () => {
             </Card>
           ))}
       </Flex>
-      {aiResponse && (
+      {aiResponse && searchValue.length > 3 && searchPrompt.length > 0 && (
         <>
           <h3>Searched for: {<Code>{aiResponse.title}</Code>}</h3>
           <Flex direction="column" gap="3" justify="start">
