@@ -52,6 +52,7 @@ const MainContainer = () => {
     if (searchPrompt.length > 3 && dataSources.length > 0) {
       const getAIResponse = async () => {
         setLoading(true);
+        setAiResponse("");
         await fetchAIResponse(dataSources, searchPrompt);
         setLoading(false);
       };
