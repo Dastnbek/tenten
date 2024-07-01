@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Code, Flex, Heading, Spinner } from "@radix-ui/themes";
+import { Code, Flex, Heading, Spinner, Text } from "@radix-ui/themes";
 import SearchField from "./SearchField";
 import SourceCard from "@/app/components/SourceCard";
 import AIResponse from "./components/AIResponse";
@@ -26,9 +26,7 @@ const MainContainer = () => {
   const [searchPrompt, setSearchPrompt] = useState<string>("");
   const [aiResponse, setAiResponse] = useState<string>("");
   const [dataSources, setDataSources] = useState([]);
-  const [systemPrompt, setSystemPrompt] = useState<string>(
-    "You're professional analytic that returns data in object in json {title: '', list: [{name: '', info: ''}]} format"
-  );
+  const [systemPrompt, setSystemPrompt] = useState<string>("");
   const [eachDataSource, setEachDataSource] = useState([]);
   const [links, setLinks] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -64,6 +62,7 @@ const MainContainer = () => {
       if (links.length > 0) {
         try {
           const { sources } = await fetchEachSourceData(links);
+          console.log("sources", sources);
           setEachDataSource(sources);
           setLoading(false);
         } catch (error) {
@@ -98,8 +97,6 @@ const MainContainer = () => {
     }
   }, [searchPrompt, eachDataSource]);
 
-  console.log("aiResponse", aiResponse);
-
   return (
     <Flex direction="column" align="center" mt="9" justify="center">
       <Flex my="5">
@@ -113,6 +110,24 @@ const MainContainer = () => {
         setSearchValue={setSearchValue}
         placeholder="Search"
       />
+
+      {eachDataSource && searchValue.length > 3 && (
+        <Flex mt="5" direction="column" gap="5" justify="start">
+          {eachDataSource.map((source, idx) => (
+            <Flex direction="column" gap="1">
+              <Text>
+                <Code>Title -> </Code>
+                {source.title}
+              </Text>
+              <Text>
+                <Code>Text -> </Code>
+                {source.text}
+              </Text>
+              <Text><Code>URL -> </Code> {source.url}</Text>
+            </Flex>
+          ))}
+        </Flex>
+      )}
 
       <span className="w-full my-4" style={{ height: 50 + "px" }}></span>
 
@@ -147,7 +162,9 @@ const MainContainer = () => {
       {loading && <Spinner mt="9" size="3" />}
       {aiResponse && searchValue.length > 3 && searchPrompt.length > 0 && (
         // <AIResponse aiResponse={aiResponse} />
-        <PrettyPrintJSON jsonData={aiResponse} />
+        <Flex width="100px" direction="column" gap="3" justify="start">
+          <PrettyPrintJSON jsonData={aiResponse} />
+        </Flex>
       )}
     </Flex>
   );

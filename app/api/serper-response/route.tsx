@@ -8,7 +8,7 @@ export const maxDuration = 300;
 const useSerperAPI = async (query: string) => {
   const searchQuery = JSON.stringify({
     q: query,
-    num: 20,
+    num: 10,
   });
 
   let config = {
@@ -56,7 +56,7 @@ const getFilteredLinks = (data: SerperResponseProps[]) => {
 
 export async function POST(request: NextRequest) {
   const { query } = await request.json();
-  const sourceCount = 3;
+  const sourceCount = 4;
   try {
     const serperResponse = await useSerperAPI(query);
     const filteredDataBasedOnLinks = getFilteredLinks(

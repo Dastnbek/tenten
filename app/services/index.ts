@@ -38,6 +38,7 @@ export const fetchAIResponse = async (
         .map((source, idx) => `Source [${idx + 1}]:\n${source.text}`)
         .join("\n\n")}
       `;
+  console.log("prompt", prompt);
 
   const response = await fetch("/api/ai-response", {
     method: "POST",
