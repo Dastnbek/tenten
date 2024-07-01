@@ -11,11 +11,22 @@ import {
   fetchAIResponse,
 } from "@/app/services";
 
+const PrettyPrintJSON = ({ jsonData }) => {
+  const prettyJSON = JSON.stringify(jsonData, null, 2);
+
+  return (
+    <pre>
+      <code>{prettyJSON}</code>
+    </pre>
+  );
+};
+
 const MainContainer = () => {
   const [searchValue, setSearchValue] = useState<string>("");
   const [searchPrompt, setSearchPrompt] = useState<string>("");
   const [aiResponse, setAiResponse] = useState<string>("");
   const [dataSources, setDataSources] = useState([]);
+  const [systemPrompt, setSystemPrompt] = useState<string>("");
   const [eachDataSource, setEachDataSource] = useState([]);
   const [links, setLinks] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -69,7 +80,11 @@ const MainContainer = () => {
         setLoading(true);
         setAiResponse("");
         try {
-          const resonse = await fetchAIResponse(eachDataSource, searchPrompt);
+          const resonse = await fetchAIResponse(
+            eachDataSource,
+            searchPrompt,
+            systemPrompt
+          );
           setAiResponse(JSON.parse(resonse.message.content));
           setLoading(false);
         } catch (error) {
@@ -80,6 +95,8 @@ const MainContainer = () => {
       getAIResponse();
     }
   }, [searchPrompt, eachDataSource]);
+
+  console.log("aiResponse", aiResponse);
 
   return (
     <Flex direction="column" align="center" mt="9" justify="center">
@@ -94,9 +111,20 @@ const MainContainer = () => {
         setSearchValue={setSearchValue}
         placeholder="Search"
       />
+
       <span className="w-full my-4" style={{ height: 50 + "px" }}></span>
 
       {eachDataSource.length > 0 && (
+        <SearchField
+          value={systemPrompt}
+          setSearchValue={setSystemPrompt}
+          placeholder="System Prompt"
+        />
+      )}
+
+      <span className="w-full my-4" style={{ height: 50 + "px" }}></span>
+
+      {eachDataSource.length > 0 && systemPrompt && (
         <SearchField
           value={searchPrompt}
           setSearchValue={setSearchPrompt}
@@ -116,7 +144,8 @@ const MainContainer = () => {
 
       {loading && <Spinner mt="9" size="3" />}
       {aiResponse && searchValue.length > 3 && searchPrompt.length > 0 && (
-        <AIResponse aiResponse={aiResponse} />
+        // <AIResponse aiResponse={aiResponse} />
+        <PrettyPrintJSON jsonData={aiResponse} />
       )}
     </Flex>
   );

@@ -1,32 +1,39 @@
 import endent from "endent";
 
 export const fetchSerperData = async (searchValue: string) => {
-    const response = await fetch("/api/serper-response", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ query: searchValue }),
-    });
+  const response = await fetch("/api/serper-response", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ query: searchValue }),
+  });
 
-    const dataSources = await response.json();
-    return dataSources;
-  };
+  const dataSources = await response.json();
+  return dataSources;
+};
 
 export const fetchEachSourceData = async (sourceLinks: string[]) => {
-    const response = await fetch('/api/sources', {
-        method: "POST", 
-        headers: {
-            "Content-Type": "application/json",
-          },
-        body: JSON.stringify({ sourceLinks })
-    });
+  const response = await fetch("/api/sources", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ sourceLinks }),
+  });
 
-    return response.json()
-}
+  return response.json();
+};
 
-export const fetchAIResponse = async (dataSources, searchPrompt) => {
-  const prompt = endent`Analyze data Sources based on given prompt ${searchPrompt} and return result in one simple object in json forma. Be helpful.
+export const fetchAIResponse = async (
+  dataSources,
+  searchPrompt,
+  systemPrompt
+) => {
+  const temp = searchPrompt
+    ? searchPrompt
+    : "Analyze data Sources based on given data sources and return result in one simple object in json format. Be helpful.";
+  const prompt = endent`${temp} in json format
       ${dataSources
         .map((source, idx) => `Source [${idx + 1}]:\n${source.text}`)
         .join("\n\n")}
@@ -37,7 +44,7 @@ export const fetchAIResponse = async (dataSources, searchPrompt) => {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ prompt }),
+    body: JSON.stringify({ prompt, systemPrompt }),
   });
   return response.json();
 };
