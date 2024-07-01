@@ -26,7 +26,9 @@ const MainContainer = () => {
   const [searchPrompt, setSearchPrompt] = useState<string>("");
   const [aiResponse, setAiResponse] = useState<string>("");
   const [dataSources, setDataSources] = useState([]);
-  const [systemPrompt, setSystemPrompt] = useState<string>("");
+  const [systemPrompt, setSystemPrompt] = useState<string>(
+    "You're professional analytic that returns data in object in json {title: '', list: [{name: '', info: ''}]} format"
+  );
   const [eachDataSource, setEachDataSource] = useState([]);
   const [links, setLinks] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
