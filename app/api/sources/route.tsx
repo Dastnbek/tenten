@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import jsdom from "jsdom";
 import { Readability } from "@mozilla/readability";
-import axios from "axios";
+
+export const maxDuration = 300;
 
 const cleanSourceText = (text: string) => {
   return text
@@ -12,63 +13,6 @@ const cleanSourceText = (text: string) => {
     .replace(/\t/g, "")
     .replace(/\n+(\s*\n)*/g, "\n");
 };
-
-const useSerperAPI = async (query: string) => {
-  const searchQuery = JSON.stringify({
-    q: query,
-    num: 20,
-  });
-
-  let config = {
-    method: "post",
-    url: "https://google.serper.dev/search",
-    headers: {
-      "X-API-KEY": process.env.SERPER_API_KEY,
-      "Content-Type": "application/json",
-    },
-    data: searchQuery,
-  };
-
-  return axios(config);
-};
-
-interface Source {
-  title: string;
-  link: string;
-  snippet: string;
-  position: number;
-}
-
-const getSourceLinks = (sources: Source[]) => {
-  const links = sources.map((source) => source.link);
-
-  return links;
-};
-
-const getFilteredLinks = (links: string[]) => {
-  const filteredLinks = links.filter((link, idx) => {
-    const domain = new URL(link).hostname;
-
-    const excludeList = [
-      "google",
-      "facebook",
-      "twitter",
-      "instagram",
-      "youtube",
-      "tiktok",
-      "pinterest",
-      "linkedin",
-      "reddit",
-    ];
-    if (excludeList.some((site) => domain.includes(site))) return false;
-
-    return links.findIndex((link) => new URL(link).hostname === domain) === idx;
-  });
-
-  return filteredLinks;
-};
-
-export const maxDuration = 300;
 
 const fetchUrls = async (urls: string[]) => {
   const { JSDOM } = jsdom;
@@ -101,18 +45,9 @@ const fetchUrls = async (urls: string[]) => {
 };
 
 export async function POST(request: NextRequest) {
-  const { query } = await request.json();
-  const sourceCount = 3;
+  const { sourceLinks } = await request.json();
   try {
-    const serperResponse = await useSerperAPI(query);
-    console.log("search response", serperResponse.data.organic);
-    const links = getSourceLinks(serperResponse.data.organic);
-    const filteredLinks = getFilteredLinks(links);
-    const finalLinks = filteredLinks.slice(0, sourceCount);
-
-    const sources = await fetchUrls(finalLinks);
-
-    console.log("my sources", sources);
+    const sources = await fetchUrls(sourceLinks);
 
     const filteredSources = sources.filter((source) => source !== undefined);
 

@@ -18,7 +18,6 @@ const SearchField = ({
   placeholder,
 }: SearchFieldProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [showClear, setShowClear] = useState<boolean>(false);
 
   useEffect(() => {
     inputRef.current?.focus();

@@ -1,43 +1,40 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { Code, Flex, Heading, Spinner } from "@radix-ui/themes";
 import SearchField from "./SearchField";
-import endent from "endent";
+import SourceCard from "@/app/components/SourceCard";
+import AIResponse from "./components/AIResponse";
 import {
-  Card,
-  Code,
-  Flex,
-  Heading,
-  Spinner,
-  Box,
-  Text,
-} from "@radix-ui/themes";
-import Link from "next/link";
+  fetchSerperData,
+  fetchEachSourceData,
+  fetchAIResponse,
+} from "@/app/services";
 
 const MainContainer = () => {
   const [searchValue, setSearchValue] = useState<string>("");
   const [searchPrompt, setSearchPrompt] = useState<string>("");
   const [aiResponse, setAiResponse] = useState<string>("");
   const [dataSources, setDataSources] = useState([]);
+  const [eachDataSource, setEachDataSource] = useState([]);
+  const [links, setLinks] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (searchValue.length > 3) {
+      setDataSources([]);
+      setAiResponse("");
+      setLinks([]);
       const fetchedDataSourse = async () => {
         try {
-          setDataSources([]);
-          setAiResponse("");
-
           setLoading(true);
 
-          const { sources } = await fetchData();
+          const { sources } = await fetchSerperData(searchValue);
+          const sourceLinks = sources.map((source) => source.link);
 
-          console.log("my sources", sources);
-
+          setLinks(sourceLinks);
           setDataSources(sources);
-          setLoading(false);
         } catch (error) {
-          console.log(error);
           setLoading(false);
         }
       };
@@ -45,55 +42,44 @@ const MainContainer = () => {
       fetchedDataSourse();
     } else {
       setDataSources([]);
+      setEachDataSource([]);
     }
   }, [searchValue]);
 
   useEffect(() => {
-    if (searchPrompt.length > 3 && dataSources.length > 0) {
+    const getEachDataSource = async () => {
+      if (links.length > 0) {
+        try {
+          const { sources } = await fetchEachSourceData(links);
+          setEachDataSource(sources);
+          setLoading(false);
+        } catch (error) {
+          console.log("error", error);
+          setLoading(false);
+        }
+      }
+    };
+
+    getEachDataSource();
+  }, [links]);
+
+  useEffect(() => {
+    if (searchPrompt.length > 3 && eachDataSource.length > 0) {
       const getAIResponse = async () => {
         setLoading(true);
         setAiResponse("");
-        await fetchAIResponse(dataSources, searchPrompt);
-        setLoading(false);
+        try {
+          const resonse = await fetchAIResponse(eachDataSource, searchPrompt);
+          setAiResponse(JSON.parse(resonse.message.content));
+          setLoading(false);
+        } catch (error) {
+          setLoading(false);
+        }
       };
 
       getAIResponse();
     }
-  }, [searchPrompt, dataSources]);
-
-  const fetchData = async () => {
-    const response = await fetch("/api/sources", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ query: searchValue }),
-    });
-
-    const dataSources = await response.json();
-
-    return dataSources;
-  };
-
-  const fetchAIResponse = async (dataSources, searchPrompt) => {
-    const prompt = endent`Analyze data Sources based on given prompt ${searchPrompt} and return result in one simple object in json forma. Be helpful.
-        ${dataSources
-          .map((source, idx) => `Source [${idx + 1}]:\n${source.text}`)
-          .join("\n\n")}
-        `;
-
-    const airesponse = await fetch("/api/ai-response", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ prompt: prompt }),
-    });
-    const res = await airesponse.json();
-    console.log("airesponse", JSON.parse(res.message.content));
-    setAiResponse(JSON.parse(res.message.content));
-    setLoading(false);
-  };
+  }, [searchPrompt, eachDataSource]);
 
   return (
     <Flex direction="column" align="center" mt="9" justify="center">
@@ -110,7 +96,7 @@ const MainContainer = () => {
       />
       <span className="w-full my-4" style={{ height: 50 + "px" }}></span>
 
-      {dataSources.length > 0 && (
+      {eachDataSource.length > 0 && (
         <SearchField
           value={searchPrompt}
           setSearchValue={setSearchPrompt}
@@ -119,42 +105,18 @@ const MainContainer = () => {
       )}
 
       <span className="w-full my-4" style={{ height: 50 + "px" }}></span>
-      {loading && <Spinner mt="9" size="3" />}
-      <Flex mt="3" direction="row" gap="2">
-        {dataSources.length > 0 &&
-          searchValue.length > 3 &&
-          dataSources.map((source, idx) => (
-            <Card key={idx} size="2">
-              <Box>
-                <Text as="div" size="2" weight="bold">
-                  {source.title}
-                </Text>
-                <Text as="div" size="2" color="gray">
-                  {source.text.slice(0, 100)}
-                </Text>
-                <Link target="_blank" href={source.url}>
-                  Read more
-                </Link>
-              </Box>
-            </Card>
+
+      {dataSources.length > 0 && searchValue.length > 3 && (
+        <Flex mt="3" direction="row" gap="2">
+          {dataSources.map((source, idx) => (
+            <SourceCard source={source} key={idx} />
           ))}
-      </Flex>
+        </Flex>
+      )}
+
+      {loading && <Spinner mt="9" size="3" />}
       {aiResponse && searchValue.length > 3 && searchPrompt.length > 0 && (
-        <>
-          <h3>Searched for: {<Code>{aiResponse.title}</Code>}</h3>
-          <Flex direction="column" gap="3" justify="start">
-            {aiResponse.list.map((item, idx) => (
-              <Flex key={idx} direction="column" gap="1">
-                <Text weight="bold" size="5" mb="1" key={idx}>
-                  {idx + 1}. {item.name || item.title}
-                </Text>
-                <Box pl="5">
-                  <Text size="2">{item.info}</Text>
-                </Box>
-              </Flex>
-            ))}
-          </Flex>
-        </>
+        <AIResponse aiResponse={aiResponse} />
       )}
     </Flex>
   );
