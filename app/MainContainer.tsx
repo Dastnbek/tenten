@@ -86,6 +86,7 @@ const MainContainer = () => {
             searchPrompt,
             systemPrompt
           );
+          console.log('ai response', JSON.parse(resonse.message.content))
           setAiResponse(JSON.parse(resonse.message.content));
           setLoading(false);
         } catch (error) {
