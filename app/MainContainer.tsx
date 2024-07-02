@@ -61,7 +61,7 @@ const MainContainer = () => {
     const getEachDataSource = async () => {
       if (links.length > 0) {
         try {
-          const { sources } = await fetchEachSourceData(links);
+          const {sources} = await fetchEachSourceData(links);
           console.log("sources", sources);
           setEachDataSource(sources);
           setLoading(false);
@@ -162,7 +162,7 @@ const MainContainer = () => {
       {loading && <Spinner mt="9" size="3" />}
       {aiResponse && searchValue.length > 3 && searchPrompt.length > 0 && (
         // <AIResponse aiResponse={aiResponse} />
-        <Flex width="100px" direction="column" gap="3" justify="start">
+        <Flex width="1000px" overflow="auto" direction="column" gap="3" justify="start">
           <PrettyPrintJSON jsonData={aiResponse} />
         </Flex>
       )}
