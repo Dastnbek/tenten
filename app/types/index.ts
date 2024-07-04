@@ -16,3 +16,8 @@ export interface AiResposneProps {
   title: string;
   list: EachAiResponse[];
 }
+
+export interface NavItemProps {
+  name: string;
+  route: string;
+}

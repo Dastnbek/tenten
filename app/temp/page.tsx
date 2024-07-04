@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { Code, Flex, Heading, Spinner, Text } from "@radix-ui/themes";
-import SearchField from "./SearchField";
-import SourceCard from "@/app/components/SourceCard";
+import SearchField from "./components/SearchField";
+import SourceCard from "@/app/temp/components/SourceCard";
 import AIResponse from "./components/AIResponse";
 import {
   fetchSerperData,
@@ -21,7 +21,7 @@ const PrettyPrintJSON = ({ jsonData }) => {
   );
 };
 
-const MainContainer = () => {
+const TempPage = () => {
   const [searchValue, setSearchValue] = useState<string>("");
   const [searchPrompt, setSearchPrompt] = useState<string>("");
   const [aiResponse, setAiResponse] = useState<string>("");
@@ -171,4 +171,4 @@ const MainContainer = () => {
   );
 };
 
-export default MainContainer;
+export default TempPage;

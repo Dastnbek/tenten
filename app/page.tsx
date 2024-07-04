@@ -1,15 +1,8 @@
 import React from "react";
-import { Container } from "@radix-ui/themes";
-import MainContainer from "./MainContainer";
-import { SpeedInsights } from "@vercel/speed-insights/next";
+import { MainPage } from "@/app/pages";
 
 const App = () => {
-  return (
-    <Container>
-      <MainContainer />
-      <SpeedInsights />
-    </Container>
-  );
+  return <MainPage />;
 };
 
 export default App;
