@@ -4,7 +4,7 @@ import { Button, Code, Flex, Text } from "@radix-ui/themes";
 import { NAV_ITEMS } from "@/app/constants";
 import { NavItemProps } from "@/app/types";
 import Link from "next/link";
-import { EditIcon } from "./components/EditIcon";
+import { EditIcon } from "@/app/assets/icons";
 
 export const Navbar = () => {
   return (

@@ -1,4 +1,3 @@
-//Edit icons
 export const EditIcon = () => {
   return (
     <svg

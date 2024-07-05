@@ -29,7 +29,7 @@ export const PostCard = ({ post }) => {
               WebkitLineClamp: "2",
               WebkitBoxOrient: "vertical",
               maxWidth: "250px",
-              height: "40px",
+              height: "50px",
               overflow: "hidden",
               textOverflow: "ellipsis",
               lineClamp: "2",
@@ -53,8 +53,8 @@ export const PostCard = ({ post }) => {
         </Flex>
         <Flex
           gap="4"
-          mt="5"
-          style={{ color: " var(--BW-300, #81889F)", fontSize: "16px" }}
+          mt="3"
+          style={{ color: " var(--BW-300, #81889F)", fontSize: "14px" }}
         >
           <Flex style={{ alignItems: "center" }}>
             <HeartIcon style={{ marginRight: "5px" }} /> {post.likes}
