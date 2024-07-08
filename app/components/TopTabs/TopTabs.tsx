@@ -1,6 +1,7 @@
 import { Box, Text, Tabs } from "@radix-ui/themes";
 import { PostCard } from "../PostCard";
 import { DUMMY_DATA } from "@/app/constants";
+import Link from "next/link";
 
 export const TopTabs = () => {
   return (
@@ -26,7 +27,9 @@ export const TopTabs = () => {
           <Tabs.Content value="trendingList">
             <div className="grid grid-cols-4 gap-6">
               {DUMMY_DATA.map((post) => (
-                <PostCard key={post.id} post={post} />
+                <Link key={post.id} href={`/top-list/${post.id}`}>
+                  <PostCard post={post} />
+                </Link>
               ))}
             </div>
           </Tabs.Content>

@@ -1,54 +1,54 @@
-import { Flex, Heading } from "@radix-ui/themes";
-import { CaretLeftIcon } from "@radix-ui/react-icons";
-import { BookMarkIcon, ReportIcon, ShareIcon } from "@/app/assets";
+import { Flex, Container, Grid, Card, Box, Text } from "@radix-ui/themes";
+import { PostContent, Header, SubHeader, Divider } from "./components";
+import { SINGLE_POST, SINGLE_POST_SOURCES } from "@/app/constants";
 
 const TopListPage = () => {
   return (
-    <Flex justify="center" mt="8" direction="column">
-      <Flex justify="center">
-        <CaretLeftIcon
-          cursor="pointer"
-          width="30"
-          height="30"
-          style={{ marginRight: "16px" }}
-        />
-        <Heading>The best 10 laptops to buy in 2024</Heading>
-      </Flex>
-      <Flex justify="center">
-        <Flex gap="3">
-          <div
-            className="flex justify-center items-center w-8 h-8"
-            style={{
-              background: "var(--BW-700, #414650)",
-              padding: "4px",
-              borderRadius: "8px",
-            }}
-          >
-            <BookMarkIcon />
-          </div>
-          <div
-            className="flex justify-center items-center w-8 h-8"
-            style={{
-              background: "var(--BW-700, #414650)",
-              padding: "4px",
-              borderRadius: "8px",
-            }}
-          >
-            <ShareIcon />
-          </div>
-          <div
-            className="flex justify-center items-center w-8 h-8"
-            style={{
-              background: "var(--BW-700, #414650)",
-              padding: "4px",
-              borderRadius: "8px",
-            }}
-          >
-            <ReportIcon />
-          </div>
+    <Container size="2">
+      <Flex justify="center" mt="8" direction="column">
+        <Header />
+        <SubHeader showAuthor={true} />
+        <Divider />
+        <PostContent SINGLE_POST={SINGLE_POST} />
+        <Divider />
+        <SubHeader showAuthor={false} />
+        <Flex direction="column" mb="6" gap="2">
+          <Text size="5" mb="3" weight="bold">
+            Sources used to create this list
+          </Text>
+          <Grid gap="3" columns="2">
+            {SINGLE_POST_SOURCES.slice(0, 2).map((source) => (
+              <Card key={source.id}>
+                <Box>
+                  <Text as="div" size="2" weight="bold">
+                    {source.title}
+                  </Text>
+                  <Text as="div" size="2" color="gray">
+                    {source.source}
+                  </Text>
+                </Box>
+              </Card>
+            ))}
+          </Grid>
+          <Grid gap="3" columns="3">
+            {SINGLE_POST_SOURCES.slice(2, SINGLE_POST_SOURCES.length).map(
+              (source) => (
+                <Card key={source.id}>
+                  <Box>
+                    <Text as="div" size="2" weight="bold">
+                      {source.title}
+                    </Text>
+                    <Text as="div" size="2" color="gray">
+                      {source.source}
+                    </Text>
+                  </Box>
+                </Card>
+              )
+            )}
+          </Grid>
         </Flex>
       </Flex>
-    </Flex>
+    </Container>
   );
 };
 
