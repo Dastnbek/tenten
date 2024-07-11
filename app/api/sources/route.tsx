@@ -14,10 +14,10 @@ const cleanSourceText = (text: string) => {
     .replace(/\t/g, "")
     .replace(/\n+(\s*\n)*/g, "\n");
 };
-
+// Custom scrapper
 const fetchUrls = async (urls: string[]) => {
   const { JSDOM } = jsdom;
-  const contents: { url: string; text: string }[] = [];
+  const scrappedContents: { url: string; text: string }[] = [];
 
   for (const url of urls) {
     try {
@@ -32,21 +32,21 @@ const fetchUrls = async (urls: string[]) => {
       const parsed = new Readability(doc).parse();
 
       if (parsed) {
-        let sourceText = cleanSourceText(parsed.textContent);
-        let title = parsed.title;
+        const text = cleanSourceText(parsed.textContent);
 
-        contents.push({ url: url, text: sourceText, title });
+        scrappedContents.push({ url, text });
       }
     } catch (error) {
       console.error(error);
       // throw new Error("Failed to fetch one or more URLs");
     }
   }
-  return contents;
+  return scrappedContents;
 };
 
-const fetchURLsWithAxios = async (urls: string[]) => {
-  let list = [];
+// Serper scrapper
+const scrapeLinksWithSerperDev = async (urls: string[]) => {
+  const scrappedContents = [];
   for (const url of urls) {
     let data = JSON.stringify({
       url: url,
@@ -64,8 +64,8 @@ const fetchURLsWithAxios = async (urls: string[]) => {
 
     try {
       const response = await axios(config);
-      list.push({
-        text: response.data.text.slice(0, 2500),
+      scrappedContents.push({
+        text: response.data.text,
         title: response.data.metadata.title,
         url: response.data.metadata["og:url"],
       });
@@ -74,25 +74,53 @@ const fetchURLsWithAxios = async (urls: string[]) => {
     }
   }
 
-  return list;
+  return scrappedContents;
+};
+
+// Jina Reader API [Scrapper]
+const scrapeLinksWithJinaReader = async (urls: string[]) => {
+  const scrappedContents: { url: string; text: string }[] = [];
+  // Did not move the API key to .env for the sake of simplicity and it is free API key
+  try {
+    for (const url of urls) {
+      const response = await fetch(`https://r.jina.ai/${url}`, {
+        method: "GET",
+        headers: {
+          Authorization:
+            "Bearer jina_b9b9ccd6f14b4ebb97bf83333a307e30KM_eyNAR8A3XApNMkx2wpRsc_DWQ",
+        },
+      });
+
+      if (response.status === 200) {
+        const text = await response.text();
+        scrappedContents.push({ url, text });
+      }
+    }
+
+    return scrappedContents;
+  } catch (error) {
+    console.log("error", error);
+  }
 };
 
 export async function POST(request: NextRequest) {
   const { sourceLinks } = await request.json();
   try {
-    const sources = await fetchURLsWithAxios(sourceLinks);
+    const sources = await scrapeLinksWithJinaReader(sourceLinks);
+    // const sources = await scrapeLinksWithSerperDev(sourceLinks);
     // const sources = await fetchUrls(sourceLinks);
 
-    // const filteredSources = sources.filter((source) => source !== undefined);
+    // Filter out sources with no text or text length less than 500
+    const filteredSources = sources.filter(
+      (source) => source !== undefined || source?.length > 500
+    );
 
-    // for (const source of filteredSources) {
-    //   source.text = source.text.slice(0, 2500);
-    // }
-    console.log("sources", sources);
+    for (const source of filteredSources) {
+      source.text = source.text.slice(0, 4000);
+    }
 
-    return NextResponse.json({ sources: sources }, { status: 201 });
+    return NextResponse.json({ sources: filteredSources }, { status: 201 });
   } catch (error) {
-    console.error(error);
     return NextResponse.json({ error }, { status: 500 });
   }
 }
